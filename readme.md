@@ -1,0 +1,1 @@
+Example design patterns, written up in Python while reading "Head First Design Patterns" - Eric & Elisabeth Freeman - O'Riley
