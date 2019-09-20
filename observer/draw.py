@@ -149,10 +149,11 @@ class Image:
     def add_shape(self, shape):
         assert isinstance(shape, Shape)
 
-        self._shapes.append(shape)
-        shape.link_image(self)
+        if shape not in self._shapes:
+            self._shapes.append(shape)
+            shape.link_image(self)
 
-        self.update()
+            self.update()
 
     def remove_shape(self, shape):
         if shape in self._shapes:
@@ -162,7 +163,7 @@ class Image:
         self.update()
 
     def clear_shapes(self):
-        for shape in self.shapes:
+        for shape in self._shapes:
             shape.unlink_image(self)
 
         self._shapes = []
