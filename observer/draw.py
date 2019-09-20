@@ -18,6 +18,31 @@ class Shape:
     def draw(self, image):
         raise NotImplementedError
 
+    def move(self, x, y):
+        raise NotImplementedError
+
+    def _init_images(self):
+        if not hasattr(self, 'images'):
+            self.images = []
+
+    def link_image(self, image):
+        self._init_images()
+
+        if image not in self.images:
+            self.images.append(image)
+
+    def unlink_image(self, image):
+        self._init_images()
+
+        if image in self.images:
+            self.images.remove(image)
+
+    def update_images(self):
+        self._init_images()
+
+        for image in self.images:
+            image.update()
+
 
 class Rectangle(Shape):
     def __init__(self, pt1, pt2, colour=None, line_px=None):
@@ -28,6 +53,12 @@ class Rectangle(Shape):
 
     def draw(self, image):
         cv2.rectangle(image, self.pt1, self.pt2, self.colour, self.line_px)
+
+    def move(self, x, y):
+        self.pt1 = (self.pt1[0] + x, self.pt1[1] + y)
+        self.pt2 = (self.pt2[0] + x, self.pt2[1] + y)
+
+        self.update_images()
 
 
 class Line(Shape):
@@ -40,6 +71,11 @@ class Line(Shape):
     def draw(self, image):
         cv2.line(image, self.pt1, self.pt2, self.colour, self.line_px)
 
+    def move(self, x, y):
+        self.pt1 = (self.pt1[0] + x, self.pt1[1] + y)
+        self.pt2 = (self.pt2[0] + x, self.pt2[1] + y)
+
+        self.update_images()
 
 class Circle(Shape):
     def __init__(self, centre, radius, colour=None, line_px=None):
@@ -51,6 +87,10 @@ class Circle(Shape):
     def draw(self, image):
         cv2.circle(image, self.centre, self.radius, self.colour, self.line_px)
 
+    def move(self, x, y):
+        self.centre = (self.centre[0] + x, self.centre[1] + y)
+
+        self.update_images()
 
 class Text(Shape):
     def __init__(self, text, position,
@@ -66,6 +106,10 @@ class Text(Shape):
         cv2.putText(image, self.text, self.position, self.font,
             self.size, self.colour, self.thickness, cv2.LINE_AA)
 
+    def move(self, x, y):
+        self.position = (self.position[0] + x, self.position[1] + y)
+
+        self.update_images()
 
 class Image:
     def __init__(self, width, height, name=None):
@@ -89,7 +133,7 @@ class Image:
 
         self._drawn = True
 
-    def _update(self):
+    def update(self):
         if self._drawn:
             self.draw()
 
@@ -101,13 +145,20 @@ class Image:
         assert isinstance(shape, Shape)
 
         self._shapes.append(shape)
-        self._update()
+        shape.link_image(self)
+
+        self.update()
 
     def remove_shape(self, shape):
         if shape in self._shapes:
             self._shapes.remove(shape)
-        self._update()
+            shape.unlink_image(self)
+
+        self.update()
 
     def clear_shapes(self):
+        for shape in self.shapes:
+            shape.unlink_image(self)
+
         self._shapes = []
-        self._update()
+        self.update()
