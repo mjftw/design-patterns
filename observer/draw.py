@@ -2,6 +2,7 @@ import cv2
 import numpy as np
 
 
+
 class Colour():
     '''BGR Colour'''
     BLACK = (0, 0, 0)
@@ -121,6 +122,10 @@ class Image:
         self._drawn = False
 
         self.draw()
+
+    def __del__(self):
+        self.close()
+        self.clear_shapes()
 
     def draw(self):
         image = 255 * np.ones((self.width, self.height, 3), np.uint8)
