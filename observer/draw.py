@@ -23,6 +23,9 @@ class Rectangle(Shape):
     def __init__(self, pt1, pt2, colour=None, line_px=None):
         self.pt1 = pt1
 
+    def draw(self, image):
+        cv2.rectangle(image, self.pt1, self.pt2, self.colour, self.line_px)
+
 
 class Line(Shape):
     def __init__(self, pt1, pt2, colour=None, line_px=None):
@@ -36,9 +39,6 @@ class Line(Shape):
         self.pt2 = pt2
         self.colour = colour or Colour.BLACK
         self.line_px = line_px or -1
-
-    def draw(self, image):
-        cv2.rectangle(image, self.pt1, self.pt2, self.colour, self.line_px)
 
 
 class Circle(Shape):
