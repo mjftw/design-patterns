@@ -54,7 +54,7 @@ class Circle(Shape):
 
 class Text(Shape):
     def __init__(self, text, position,
-            colour=None, size=None, thickness=None font=None):
+            colour=None, size=None, thickness=None, font=None):
         self.text = text
         self.position = position
         self.colour = colour or Colour.BLACK
