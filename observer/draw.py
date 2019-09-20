@@ -52,6 +52,21 @@ class Circle(Shape):
         cv2.circle(image, self.centre, self.radius, self.colour, self.line_px)
 
 
+class Text(Shape):
+    def __init__(self, text, position,
+            colour=None, size=None, thickness=None font=None):
+        self.text = text
+        self.position = position
+        self.colour = colour or Colour.BLACK
+        self.size = size or 1
+        self.thickness = thickness or 1
+        self.font = font or cv2.FONT_HERSHEY_SIMPLEX
+
+    def draw(self, image):
+        cv2.putText(image, self.text, self.position, self.font,
+            self.size, self.colour, self.thickness, cv2.LINE_AA)
+
+
 class Image:
     def __init__(self, width, height, name=None):
         self.width = width
