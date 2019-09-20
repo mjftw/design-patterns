@@ -2,7 +2,6 @@ import cv2
 import numpy as np
 
 
-
 class Colour():
     '''BGR Colour'''
     BLACK = (0, 0, 0)
@@ -78,6 +77,7 @@ class Line(Shape):
 
         self.update_images()
 
+
 class Circle(Shape):
     def __init__(self, centre, radius, colour=None, line_px=None):
         self.centre = centre
@@ -92,6 +92,7 @@ class Circle(Shape):
         self.centre = (self.centre[0] + x, self.centre[1] + y)
 
         self.update_images()
+
 
 class Text(Shape):
     def __init__(self, text, position,
@@ -111,6 +112,7 @@ class Text(Shape):
         self.position = (self.position[0] + x, self.position[1] + y)
 
         self.update_images()
+
 
 class Image:
     def __init__(self, width, height, name=None):
