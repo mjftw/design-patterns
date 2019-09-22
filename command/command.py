@@ -4,7 +4,7 @@ class InvalidCommandError(Exception):
 
 # Command interface
 class Command:
-    def execute(self):
+    def execute(self, *args):
         raise NotImplementedError
 
 
@@ -14,7 +14,7 @@ class MacroCommand(Command):
 
         self.commmands = commands
 
-    def execute(self):
+    def execute(self, *args):
         for cmd in self.commmands:
             cmd.execute()
 
