@@ -8,6 +8,17 @@ class Command:
         raise NotImplementedError
 
 
+class MacroCommand(Command):
+    def __init__(self, *commands):
+        assert all(isinstance(cmd, Command) for cmd in commands)
+
+        self.commmands = commands
+
+    def execute(self):
+        for cmd in self.commmands:
+            cmd.execute()
+
+
 class Invoker:
     def __init__(self):
         self.commands = {}

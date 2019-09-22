@@ -1,5 +1,5 @@
 
-from command import Command
+from command import Command, MacroCommand
 from cli import CLI
 
 
@@ -47,10 +47,13 @@ def main():
     goodbyeCommand = LogCommand(logGoodbye)
     addCommand = AddCommand(adder)
 
+    greetingsMacro = MacroCommand(helloCommand, goodbyeCommand)
+
     cli = CLI()
     cli.set_command('hello', helloCommand)
     cli.set_command('goodbye', goodbyeCommand)
     cli.set_command('add', addCommand)
+    cli.set_command('greetings', greetingsMacro)
 
     cli.run()
 
