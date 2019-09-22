@@ -19,3 +19,21 @@ class Logger:
 
     def log(self):
         print(self.message)
+
+
+def main():
+    logHello = Logger('Hello World!')
+    logGoodbye = Logger('Goodbye World!')
+
+    helloCommand = LogCommand(logHello)
+    goodbyeCommand = LogCommand(logGoodbye)
+
+    cli = CLI()
+    cli.set_command('hello', helloCommand)
+    cli.set_command('goodbye', goodbyeCommand)
+
+    cli.run()
+
+
+if __name__ == '__main__':
+    main()
