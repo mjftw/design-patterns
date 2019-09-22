@@ -14,6 +14,7 @@ class Colour():
     WHITE = (255, 255, 255)
 
 
+# if Subject object moves, it updates all registed Images
 class Shape:
     def draw(self, image):
         raise NotImplementedError
@@ -114,6 +115,7 @@ class Text(Shape):
         self.update_images()
 
 
+# Observer object is updated every time a shape moves
 class Image:
     def __init__(self, width, height, name=None):
         self.width = width
