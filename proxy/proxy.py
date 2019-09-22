@@ -23,6 +23,9 @@ class ProxyClient:
         msg_in = transport.recieve()
         response = codec.decode(msg_in)
 
+        if isinstance(response, Exception):
+            raise response
+
         if not callable(response):
             return response
 

@@ -7,6 +7,7 @@ from transport import QueueTransportClient, QueueTransportSerice
 
 
 class Foo:
+    ''' Example class to spoof '''
     def __init__(self):
         self.attr1 = 1
         self.attr2 = 2
@@ -30,6 +31,11 @@ def client_main(client_queue, service_queue):
 
     ans = foo_proxy.difference(2, 7)
     print(ans)
+
+    try:
+        attr = foo_proxy.not_an_attr
+    except Exception as e:
+        print(f'Caught exception: {type(e)}: {str(e)}')
 
 
 def service_main(client_queue, service_queue):
