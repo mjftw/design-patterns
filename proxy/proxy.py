@@ -14,12 +14,24 @@ class ProxyClient:
         self.transport = transport
         self.codec = codec
 
-    def __getattribute__(self, name):
-        msg_out = self.codec.encode('__getattribute__', (name,))
-        msg_in = self.transport.send(msg_out)
+    def __getattr__(self, name):
+        msg_out = self.codec.encode(('__getattr__', (name,), {}))
+        self.transport.send(msg_out)
+        msg_in = self.transport.recieve()
         response = self.codec.decode(msg_in)
 
-        return response
+        if not callable(response):
+            return response
+
+        def proxy_call(*args, **kwargs):
+            msg_out = self.codec.encode((name, args, kwargs))
+            self.transport.send(msg_out)
+            msg_in = self.transport.recieve()
+            response = self.codec.decode(msg_in)
+
+            return response
+
+        return proxy_call
 
 
 # Service object helper
@@ -39,10 +51,26 @@ class ProxyService:
     def run(self):
         while True:
             msg_in = self.transport.recieve()
-            (fn_name, args, kwargs) = self.codec.decode(msg_in),
+            decoded = self.codec.decode(msg_in),
+            decoded = decoded[0]
+
+            args = ()
+            kwargs = {}
+            if len(decoded) >= 1:
+                fn_name = decoded[0]
+            if len(decoded) >= 2:
+                args = decoded[1]
+            if len(decoded) >= 3:
+                kwargs = decoded[2]
+
             try:
-                fn = getattr(self.service, fn_name)
-                response = None
+                if fn_name == '__getattr__':
+                    response = getattr(self.service, *args, **kwargs)
+                elif fn_name == '__setattr__':
+                    response = setattr(self.service, *args, **kwargs)
+                else:
+                    fn = getattr(self.service, fn_name)
+                    response = None
             except AttributeError as e:
                 response = e
 

@@ -28,5 +28,4 @@ class PickleCodec(Codec):
         if self.compress:
             msg = bz2.decompress(msg)
 
-        (fn, args, kwargs) = pickle.loads(msg)
-        return (fn, args, kwargs)
+        return pickle.loads(msg)
