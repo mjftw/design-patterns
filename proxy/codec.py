@@ -6,7 +6,7 @@ class Codec:
     ''' Encode function name, args, and kwargs into a
         message. Decode message back into function name, args, and kwargs.
     '''
-    def encode(self, fn, *args, **kwargs):
+    def encode(self, msg):
         raise NotImplementedError
 
     def decode(self, msg):
@@ -17,8 +17,8 @@ class PickleCodec(Codec):
     def __init__(self, compress=None):
         self.compress = compress or False
 
-    def encode(self, msg_in):
-        msg = pickle.dumps(msg_in)
+    def encode(self, msg):
+        msg = pickle.dumps(msg)
         if self.compress:
             msg = bz2.compress(msg)
 
