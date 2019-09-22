@@ -21,16 +21,36 @@ class Logger:
         print(self.message)
 
 
+# Concerete Class implimenting Command interface
+class AddCommand(Command):
+    def __init__(self, reciever):
+        self.reciever = reciever
+
+    def execute(self, *args):
+        answer = self.reciever.add(*args)
+
+        print(f'{" + ".join(args)} = {answer}')
+
+
+# Reciever
+class Adder:
+    def add(self, *args):
+        return sum(int(x) for x in args)
+
+
 def main():
     logHello = Logger('Hello World!')
     logGoodbye = Logger('Goodbye World!')
+    adder = Adder()
 
     helloCommand = LogCommand(logHello)
     goodbyeCommand = LogCommand(logGoodbye)
+    addCommand = AddCommand(adder)
 
     cli = CLI()
     cli.set_command('hello', helloCommand)
     cli.set_command('goodbye', goodbyeCommand)
+    cli.set_command('add', addCommand)
 
     cli.run()
 

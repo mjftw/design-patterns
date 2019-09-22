@@ -18,7 +18,12 @@ class CLI(Invoker):
         while True:
             try:
                 cmd = input('cli$ ')
-                self.run_command(cmd)
+                if ' ' in cmd:
+                    cmd, *args = cmd.split()
+                else:
+                    args = ()
+
+                self.run_command(cmd, *args)
             except EOFError:
                 self.run_command('exit')
             except InvalidCommandError as e:

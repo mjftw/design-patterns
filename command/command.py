@@ -18,8 +18,11 @@ class Invoker:
 
         self.commands[name] = command
 
-    def run_command(self, name):
+    def run_command(self, name, *args):
         if name not in self.commands:
             raise InvalidCommandError(f'{name}: command not found')
 
-        self.commands[name].execute()
+        if args:
+            self.commands[name].execute(*args)
+        else:
+            self.commands[name].execute()
