@@ -11,27 +11,64 @@ class ProxyClient:
     def __init__(self, codec, transport):
         assert isinstance(codec, Codec)
         assert isinstance(transport, Transport)
-        self.transport = transport
-        self.codec = codec
+        object.__setattr__(self, '_transport', transport)
+        object.__setattr__(self, '_codec', codec)
 
-    def __getattr__(self, name):
-        msg_out = self.codec.encode(('__getattr__', (name,), {}))
-        self.transport.send(msg_out)
-        msg_in = self.transport.recieve()
-        response = self.codec.decode(msg_in)
+    def proxy_call(self, fn_name, *args, **kwargs):
+        codec = object.__getattribute__(self, '_codec')
+        transport = object.__getattribute__(self, '_transport')
+
+        msg_out = codec.encode((fn_name, args, kwargs))
+        transport.send(msg_out)
+        msg_in = transport.recieve()
+        response = codec.decode(msg_in)
 
         if not callable(response):
             return response
 
-        def proxy_call(*args, **kwargs):
-            msg_out = self.codec.encode((name, args, kwargs))
-            self.transport.send(msg_out)
-            msg_in = self.transport.recieve()
-            response = self.codec.decode(msg_in)
+        fn_name = args[0]
+
+        def wrap(*fn_args, **fn_kwargs):
+            msg_out = codec.encode((fn_name, fn_args, fn_kwargs))
+            transport.send(msg_out)
+            msg_in = transport.recieve()
+            response = codec.decode(msg_in)
 
             return response
+        wrap.__name__ = fn_name
 
-        return proxy_call
+        return wrap
+
+    #
+    # proxying (special cases)
+    #
+    def __getattr__(self, *args, **kwargs):
+        proxy_call = object.__getattribute__(self, 'proxy_call')
+        return proxy_call('__getattr__', *args, **kwargs)
+
+    def __delattr__(self, *args, **kwargs):
+        proxy_call = object.__getattribute__(self, 'proxy_call')
+        return proxy_call('__delattr__', *args, **kwargs)
+
+    def __setattr__(self, *args, **kwargs):
+        proxy_call = object.__getattribute__(self, 'proxy_call')
+        return proxy_call('__setattr__', *args, **kwargs)
+
+    def __nonzero__(self, *args, **kwargs):
+        proxy_call = object.__getattribute__(self, 'proxy_call')
+        return proxy_call('__nonzero__', *args, **kwargs)
+
+    def __str__(self, *args, **kwargs):
+        proxy_call = object.__getattribute__(self, 'proxy_call')
+        return proxy_call('__str__', *args, **kwargs)
+
+    def __repr__(self, *args, **kwargs):
+        proxy_call = object.__getattribute__(self, 'proxy_call')
+        return proxy_call('__repr__', *args, **kwargs)
+
+    def __hash__(self, *args, **kwargs):
+        proxy_call = object.__getattribute__(self, 'proxy_call')
+        return proxy_call('__hash__', *args, **kwargs)
 
 
 # Service object helper
@@ -56,6 +93,9 @@ class ProxyService:
 
             args = ()
             kwargs = {}
+            fn_name = None
+            response = None
+
             if len(decoded) >= 1:
                 fn_name = decoded[0]
             if len(decoded) >= 2:
@@ -65,20 +105,24 @@ class ProxyService:
 
             try:
                 if fn_name == '__getattr__':
-                    response = getattr(self.service, *args, **kwargs)
+                    response = object.__getattribute__(self.service, *args, **kwargs)
+                elif fn_name == '__delattr__':
+                    response = delattr(self.service, *args, **kwargs)
                 elif fn_name == '__setattr__':
                     response = setattr(self.service, *args, **kwargs)
+                elif fn_name == '__nonzero__':
+                    response = bool(self.service, *args, **kwargs)
+                elif fn_name == '__str__':
+                    response = str(self.service, *args, **kwargs)
+                elif fn_name == '__repr__':
+                    response = repr(self.service, *args, **kwargs)
+                elif fn_name == '__hash__':
+                    response = hash(self.service, *args, **kwargs)
                 else:
-                    fn = getattr(self.service, fn_name)
-                    response = None
-            except AttributeError as e:
-                response = e
-
-            if not response:
-                try:
+                    fn = object.__getattribute__(self.service, fn_name)
                     response = fn(*args, **kwargs)
-                except Exception as e:
-                    response = e
+            except Exception as e:
+                response = e
 
             msg_out = self.codec.encode(response)
             self.transport.send(msg_out)

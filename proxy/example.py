@@ -3,7 +3,7 @@ from queue import Queue
 
 from proxy import ProxyClient, ProxyService
 from codec import PickleCodec
-from transport import QueueTransport
+from transport import QueueTransportClient, QueueTransportSerice
 
 
 class Foo:
@@ -15,9 +15,9 @@ class Foo:
         return abs(x - y)
 
 
-def client_main(queue):
+def client_main(client_queue, service_queue):
     codec = PickleCodec()
-    transport = QueueTransport(queue)
+    transport = QueueTransportClient(client_queue, service_queue)
     foo_proxy = ProxyClient(codec, transport)
 
     attr1 = foo_proxy.attr1
@@ -32,23 +32,25 @@ def client_main(queue):
     print(ans)
 
 
-def service_main(queue):
+def service_main(client_queue, service_queue):
     foo = Foo()
 
     codec = PickleCodec()
-    transport = QueueTransport(queue)
+    transport = QueueTransportSerice(client_queue, service_queue)
     proxy = ProxyService(foo, codec, transport)
 
     proxy.run()
 
 
 def main():
-    queue = Queue()
+    client_queue = Queue()
+    service_queue = Queue()
 
-    service_thread = Thread(target=service_main, args=(queue,))
+    service_thread = Thread(target=service_main,
+        args=(client_queue, service_queue,))
     service_thread.start()
 
-    client_main(queue)
+    client_main(client_queue, service_queue)
 
 
 if __name__ == '__main__':
