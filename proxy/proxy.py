@@ -108,7 +108,7 @@ class ProxyService:
 
             try:
                 if fn_name == '__getattr__':
-                    response = object.__getattribute__(self.service, *args, **kwargs)
+                    response = getattr(self.service, *args, **kwargs)
                 elif fn_name == '__delattr__':
                     response = delattr(self.service, *args, **kwargs)
                 elif fn_name == '__setattr__':
