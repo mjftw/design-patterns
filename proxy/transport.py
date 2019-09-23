@@ -11,25 +11,13 @@ class Transport:
         raise NotImplementedError
 
 
-class QueueTransportClient(Transport):
-    def __init__(self, client_queue, service_queue):
-        self.client_queue = client_queue
-        self.service_queue = service_queue
+class QueueTransport(Transport):
+    def __init__(self, rx_queue, tx_queue):
+        self.rx_queue = rx_queue
+        self.tx_queue = tx_queue
 
     def send(self, msg):
-        self.service_queue.put(msg)
+        self.tx_queue.put(msg)
 
     def recieve(self):
-        return self.client_queue.get()
-
-
-class QueueTransportSerice(Transport):
-    def __init__(self, client_queue, service_queue):
-        self.client_queue = client_queue
-        self.service_queue = service_queue
-
-    def send(self, msg):
-        self.client_queue.put(msg)
-
-    def recieve(self):
-        return self.service_queue.get()
+        return self.rx_queue.get()
