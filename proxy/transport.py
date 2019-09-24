@@ -1,6 +1,12 @@
 import asyncio
+from threading import Thread
 from aiohttp import web, ClientSession
 from queue import Queue
+
+
+class TransportError(Exception):
+    pass
+
 
 class Transport:
     ''' Interface class, used to pass function calls to another
@@ -38,24 +44,47 @@ class HttpTransport(Transport):
 
         self.rx_queue = Queue()
 
-        self.app = web.Application()
-        self.app.add_routes([web.post(self.own_endpoint, self._msg_recieve)])
+        self.server_thread = Thread(
+            target=self._run_server, args=(self._aiohttp_server(),))
 
-        web.run_app(self.app, host=self.own_host, port=self.own_port)
+        self.server_thread.start()
+
+    # ======= Server =======
+    def _aiohttp_server(self):
+        app = web.Application()
+        app.add_routes([web.post(self.own_endpoint, self._msg_recieve)])
+        runner = web.AppRunner(app)
+        return runner
+
+    def _run_server(self, runner):
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+        loop.run_until_complete(runner.setup())
+        site = web.TCPSite(runner, self.own_host, self.own_port)
+        loop.run_until_complete(site.start())
+
+        print(f'Running server on {self.own_host}:{self.own_port}')
+        loop.run_forever()
 
     async def _msg_recieve(self, request):
-        self.rx_queue.put(request.text)
+        msg = await request.read()
+        self.rx_queue.put(msg)
         return web.Response(status=200)
 
+    # ======= Client =======
     async def _msg_send(self, session, url, msg):
-        async with session.post(url, text=msg) as response:
-            return await response.status()
+        async with session.post(url, data=msg) as response:
+            return response.status
 
     async def _run_client(self, msg):
+        url = f'http://{self.dest_host}:{self.dest_port}{self.dest_endpoint}'
+        status = None
         async with ClientSession() as session:
-            status = await self._msg_send(session, self.dest_host, msg)
-            print(status)
+            status = await self._msg_send(session, url, msg)
+        if status != 200:
+            raise TransportError(f'Bad response from {url}: {status}')
 
+    # ======= API =======
     def send(self, msg):
         loop = asyncio.get_event_loop()
         loop.run_until_complete(self._run_client(msg))
