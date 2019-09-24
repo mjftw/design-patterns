@@ -1,7 +1,9 @@
 import asyncio
 from threading import Thread
 from aiohttp import web, ClientSession
+from aiohttp.client_exceptions import ClientConnectorError
 from queue import Queue
+import time
 
 
 class TransportError(Exception):
@@ -73,8 +75,23 @@ class HttpTransport(Transport):
 
     # ======= Client =======
     async def _msg_send(self, session, url, msg):
-        async with session.post(url, data=msg) as response:
-            return response.status
+        delay = 0.05
+        waited = 0
+        max_delay = 30
+        # Retry request with exponential backoff
+        while True:
+            try:
+                async with session.post(url, data=msg) as response:
+                    return response.status
+            except ClientConnectorError as e:
+                delay = delay * 2
+
+                if delay >= max_delay:
+                    delay = max_delay
+                    print(f'No response from {url} for {waited}s. Retrying in {delay}s')
+
+                time.sleep(delay)
+                waited += delay
 
     async def _run_client(self, msg):
         url = f'http://{self.dest_host}:{self.dest_port}{self.dest_endpoint}'
