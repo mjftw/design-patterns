@@ -77,7 +77,7 @@ class HttpTransport(Transport):
     async def _msg_send(self, session, url, msg):
         delay = 0.05
         waited = 0
-        max_delay = 30
+        max_delay = 10
         # Retry request with exponential backoff
         while True:
             try:
@@ -88,7 +88,7 @@ class HttpTransport(Transport):
 
                 if delay >= max_delay:
                     delay = max_delay
-                    print(f'No response from {url} for {waited}s. Retrying in {delay}s')
+                    raise TransportError(f'{str(e)}. No response after {waited}s')
 
                 time.sleep(delay)
                 waited += delay

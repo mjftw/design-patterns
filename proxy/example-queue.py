@@ -3,7 +3,7 @@ from queue import Queue
 
 from proxy import ProxyClient, ProxyService
 from codec import PickleCodec
-from transport import QueueTransport, HttpTransport
+from transport import QueueTransport
 
 
 class Foo:
@@ -18,7 +18,7 @@ class Foo:
 
 def client_main(client_queue, service_queue):
     codec = PickleCodec()
-    transport = HttpTransport(own_port=5000, dest_port=5001)
+    transport = QueueTransport(client_queue, service_queue)
     foo_proxy = ProxyClient(codec, transport)
 
     attr1 = foo_proxy.attr1
@@ -42,7 +42,7 @@ def service_main(client_queue, service_queue):
     foo = Foo()
 
     codec = PickleCodec()
-    transport = HttpTransport(own_port=5001, dest_port=5000)
+    transport = QueueTransport(service_queue, client_queue)
     proxy = ProxyService(foo, codec, transport)
 
     proxy.run()
