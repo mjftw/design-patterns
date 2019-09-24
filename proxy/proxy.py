@@ -1,4 +1,4 @@
-from transport import Transport
+from transport import Transport, TransportError
 from codec import Codec
 
 
@@ -21,7 +21,10 @@ class ProxyClient:
         msg_out = codec.encode((fn_name, args, kwargs))
         transport.send(msg_out)
         msg_in = transport.recieve()
-        response = codec.decode(msg_in)
+        try:
+            response = codec.decode(msg_in)
+        except Exception as e:
+            raise TransportError(f'Message decode error: {str(e)}')
 
         if isinstance(response, Exception):
             raise response
@@ -90,42 +93,53 @@ class ProxyService:
 
     def run(self):
         while True:
-            msg_in = self.transport.recieve()
-            decoded = self.codec.decode(msg_in),
-            decoded = decoded[0]
-
             args = ()
             kwargs = {}
             fn_name = None
             response = None
 
-            if len(decoded) >= 1:
-                fn_name = decoded[0]
-            if len(decoded) >= 2:
-                args = decoded[1]
-            if len(decoded) >= 3:
-                kwargs = decoded[2]
-
+            msg_in = self.transport.recieve()
             try:
-                if fn_name == '__getattr__':
-                    response = getattr(self.service, *args, **kwargs)
-                elif fn_name == '__delattr__':
-                    response = delattr(self.service, *args, **kwargs)
-                elif fn_name == '__setattr__':
-                    response = setattr(self.service, *args, **kwargs)
-                elif fn_name == '__nonzero__':
-                    response = bool(self.service, *args, **kwargs)
-                elif fn_name == '__str__':
-                    response = str(self.service, *args, **kwargs)
-                elif fn_name == '__repr__':
-                    response = repr(self.service, *args, **kwargs)
-                elif fn_name == '__hash__':
-                    response = hash(self.service, *args, **kwargs)
-                else:
-                    fn = object.__getattribute__(self.service, fn_name)
-                    response = fn(*args, **kwargs)
+                decoded = self.codec.decode(msg_in),
+                decoded = decoded[0]
             except Exception as e:
-                response = e
+                response = TransportError(f'Message decode error: {str(e)}')
+
+            if not response:
+                if len(decoded) >= 1:
+                    fn_name = decoded[0]
+                if len(decoded) >= 2:
+                    args = decoded[1]
+                if len(decoded) >= 3:
+                    kwargs = decoded[2]
+
+                response = self.make_call(fn_name, *args, **kwargs)
 
             msg_out = self.codec.encode(response)
             self.transport.send(msg_out)
+
+    def make_call(self, fn_name, *args, **kwargs):
+        try:
+            if not fn_name:
+                response = TransportError('Invalid message format')
+            elif fn_name == '__getattr__':
+                response = getattr(self.service, *args, **kwargs)
+            elif fn_name == '__delattr__':
+                response = delattr(self.service, *args, **kwargs)
+            elif fn_name == '__setattr__':
+                response = setattr(self.service, *args, **kwargs)
+            elif fn_name == '__nonzero__':
+                response = bool(self.service, *args, **kwargs)
+            elif fn_name == '__str__':
+                response = str(self.service, *args, **kwargs)
+            elif fn_name == '__repr__':
+                response = repr(self.service, *args, **kwargs)
+            elif fn_name == '__hash__':
+                response = hash(self.service, *args, **kwargs)
+            else:
+                fn = object.__getattribute__(self.service, fn_name)
+                response = fn(*args, **kwargs)
+        except Exception as e:
+            response = e
+
+        return response
