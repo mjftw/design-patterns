@@ -17,7 +17,7 @@ def main():
     codec = PickleCodec()
 
     transport = HttpTransport(own_port=5000, dest_port=5001)
-    foo_proxy = ProxyClient(codec, transport)
+    foo_proxy = ProxyClient(Foo, codec, transport)
 
     attr1 = foo_proxy.attr1
     print(attr1)

@@ -8,7 +8,7 @@ class ProxyClient:
         Any calls made to the ProxyClient are encoded into a message
         by a Codec, and then handed to a Transport class and sent
         to the ProxyService. '''
-    def __init__(self, codec, transport):
+    def __init__(self, target_class, codec, transport):
         assert isinstance(codec, Codec)
         assert isinstance(transport, Transport)
         object.__setattr__(self, '_transport', transport)
