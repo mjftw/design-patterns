@@ -132,7 +132,7 @@ class ProxyService:
         try:
             if not fn_name:
                 response = TransportError('Invalid message format')
-            elif fn_name == '__getattr__':
+            elif fn_name in ['__getattr__', '__getattribute__']:
                 self.print_fn_call('getattr', self.service, *args, **kwargs)
                 response = getattr(self.service, *args, **kwargs)
             elif fn_name == '__delattr__':
@@ -165,7 +165,8 @@ class ProxyService:
     def print_fn_call(self, fn_name, *args, **kwargs):
         args_str = ', '.join(str(a) for a in args)
         kwargs_str = ', '.join([f'{k}={v}' for k, v in kwargs.items()])
-        fn_call = '{}({}{})'.format(
+        fn_call = '{}: {}({}{})'.format(
+            self.service.__class__.__name__,
             fn_name,
             args_str,
             f', {kwargs_str}' if kwargs_str else ''
