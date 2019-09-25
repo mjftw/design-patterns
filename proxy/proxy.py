@@ -1,5 +1,10 @@
 from transport import Transport, TransportError
 from codec import Codec
+import inspect
+
+
+class ProxyError(Exception):
+    pass
 
 
 # Client object helper
@@ -14,6 +19,15 @@ class ProxyClient:
         object.__setattr__(self, '_transport', transport)
         object.__setattr__(self, '_codec', codec)
 
+        proxy_call = object.__getattribute__(self, 'proxy_call')
+        try:
+            real_target_class = proxy_call('__getattribute__', '__class__')
+        except ProxyError as e:
+            raise ProxyError(f'{str(e)}. Targeted class not in scope.')
+        if target_class != real_target_class:
+            raise ProxyError('Targeted class is actually {} not {} as expected'.format(
+                real_target_class, target_class))
+
     def proxy_call(self, fn_name, *args, **kwargs):
         codec = object.__getattribute__(self, '_codec')
         transport = object.__getattribute__(self, '_transport')
@@ -24,12 +38,12 @@ class ProxyClient:
         try:
             response = codec.decode(msg_in)
         except Exception as e:
-            raise TransportError(f'Message decode error: {str(e)}')
+            raise ProxyError(f'Message decode error: {str(e)}')
 
         if isinstance(response, Exception):
             raise response
 
-        if not callable(response):
+        if not callable(response) or inspect.isclass(response):
             return response
 
         fn_name = args[0]
@@ -50,7 +64,7 @@ class ProxyClient:
     #
     def __getattribute__(self, *args, **kwargs):
         proxy_call = object.__getattribute__(self, 'proxy_call')
-        return proxy_call('__getattr__', *args, **kwargs)
+        return proxy_call('__getattribute__', *args, **kwargs)
 
     def __delattr__(self, *args, **kwargs):
         proxy_call = object.__getattribute__(self, 'proxy_call')
