@@ -123,23 +123,41 @@ class ProxyService:
             if not fn_name:
                 response = TransportError('Invalid message format')
             elif fn_name == '__getattr__':
+                self.print_fn_call('getattr', self.service, *args, **kwargs)
                 response = getattr(self.service, *args, **kwargs)
             elif fn_name == '__delattr__':
+                self.print_fn_call('delattr', self.service, *args, **kwargs)
                 response = delattr(self.service, *args, **kwargs)
             elif fn_name == '__setattr__':
+                self.print_fn_call('setattr', self.service, *args, **kwargs)
                 response = setattr(self.service, *args, **kwargs)
             elif fn_name == '__nonzero__':
+                self.print_fn_call('bool', self.service, *args, **kwargs)
                 response = bool(self.service, *args, **kwargs)
             elif fn_name == '__str__':
+                self.print_fn_call('str', self.service, *args, **kwargs)
                 response = str(self.service, *args, **kwargs)
             elif fn_name == '__repr__':
+                self.print_fn_call('repr', self.service, *args, **kwargs)
                 response = repr(self.service, *args, **kwargs)
             elif fn_name == '__hash__':
+                self.print_fn_call('hash', self.service, *args, **kwargs)
                 response = hash(self.service, *args, **kwargs)
             else:
                 fn = object.__getattribute__(self.service, fn_name)
+                self.print_fn_call(fn_name, *args, **kwargs)
                 response = fn(*args, **kwargs)
         except Exception as e:
             response = e
 
         return response
+
+    def print_fn_call(self, fn_name, *args, **kwargs):
+        args_str = ', '.join(str(a) for a in args)
+        kwargs_str = ', '.join([f'{k}={v}' for k, v in kwargs.items()])
+        fn_call = '{}({}{})'.format(
+            fn_name,
+            args_str,
+            f', {kwargs_str}' if kwargs_str else ''
+        )
+        print(fn_call)
