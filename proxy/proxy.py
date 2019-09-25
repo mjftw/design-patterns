@@ -1,6 +1,7 @@
-from transport import Transport, TransportError
-from codec import Codec
 import inspect
+import pickle
+
+from transport import Transport, TransportError
 
 
 class ProxyError(Exception):
@@ -10,14 +11,12 @@ class ProxyError(Exception):
 # Client object helper
 class ProxyClient:
     ''' The ProxyClient spoofs another object, pretending to be it.
-        Any calls made to the ProxyClient are encoded into a message
-        by a Codec, and then handed to a Transport class and sent
+        Any calls made to the ProxyClient are serialised using
+        pickle and then handed to a Transport class and sent
         to the ProxyService. '''
-    def __init__(self, target_class, codec, transport):
-        assert isinstance(codec, Codec)
+    def __init__(self, target_class, transport):
         assert isinstance(transport, Transport)
         object.__setattr__(self, '_transport', transport)
-        object.__setattr__(self, '_codec', codec)
 
         proxy_call = object.__getattribute__(self, 'proxy_call')
         try:
@@ -29,14 +28,13 @@ class ProxyClient:
                 real_target_class, target_class))
 
     def proxy_call(self, fn_name, *args, **kwargs):
-        codec = object.__getattribute__(self, '_codec')
         transport = object.__getattribute__(self, '_transport')
 
-        msg_out = codec.encode((fn_name, args, kwargs))
+        msg_out = pickle.dumps((fn_name, args, kwargs))
         transport.send(msg_out)
         msg_in = transport.recieve()
         try:
-            response = codec.decode(msg_in)
+            response = pickle.loads(msg_in)
         except Exception as e:
             raise ProxyError(f'Message decode error: {str(e)}')
 
@@ -49,10 +47,10 @@ class ProxyClient:
         fn_name = args[0]
 
         def wrap(*fn_args, **fn_kwargs):
-            msg_out = codec.encode((fn_name, fn_args, fn_kwargs))
+            msg_out = pickle.dumps((fn_name, fn_args, fn_kwargs))
             transport.send(msg_out)
             msg_in = transport.recieve()
-            response = codec.decode(msg_in)
+            response = pickle.loads(msg_in)
 
             return response
         wrap.__name__ = fn_name
@@ -93,17 +91,15 @@ class ProxyClient:
 
 # Service object helper
 class ProxyService:
-    ''' The ProxyService handles calls ftom the ProxyClient via
+    ''' The ProxyService handles calls from the ProxyClient via
         the Transport class. It then makes these same calls to
         the real object that the ProxyClient is spoofing.
         The response is then passed back to the ProxyClient via
         the Transport and handed back to the calling object'''
-    def __init__(self, service, codec, transport):
-        assert isinstance(codec, Codec)
+    def __init__(self, service, transport):
         assert isinstance(transport, Transport)
         self.service = service
         self.transport = transport
-        self.codec = codec
 
     def run(self):
         while True:
@@ -114,7 +110,7 @@ class ProxyService:
 
             msg_in = self.transport.recieve()
             try:
-                decoded = self.codec.decode(msg_in),
+                decoded = pickle.loads(msg_in),
                 decoded = decoded[0]
             except Exception as e:
                 response = TransportError(f'Message decode error: {str(e)}')
@@ -129,7 +125,7 @@ class ProxyService:
 
                 response = self.make_call(fn_name, *args, **kwargs)
 
-            msg_out = self.codec.encode(response)
+            msg_out = pickle.dumps(response)
             self.transport.send(msg_out)
 
     def make_call(self, fn_name, *args, **kwargs):

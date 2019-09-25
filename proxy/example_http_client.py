@@ -1,5 +1,4 @@
 from proxy import ProxyClient
-from codec import PickleCodec
 from transport import HttpTransport
 
 
@@ -14,10 +13,8 @@ class Foo:
 
 
 def main():
-    codec = PickleCodec()
-
     transport = HttpTransport(own_port=5000, dest_port=5001)
-    foo_proxy = ProxyClient(Foo, codec, transport)
+    foo_proxy = ProxyClient(Foo, transport)
 
     attr1 = foo_proxy.attr1
     print(attr1)
