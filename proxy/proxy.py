@@ -23,7 +23,7 @@ class ProxyClient:
         try:
             real_target_class = proxy_call('__getattribute__', '__class__')
         except ProxyError as e:
-            raise ProxyError(f'{str(e)}. Targeted class not in scope.')
+            raise ProxyError(f'{str(e)}. Targeted class not in scope; different class to expected: {target_class}')
         if target_class != real_target_class:
             raise ProxyError('Targeted class is actually {} not {} as expected'.format(
                 real_target_class, target_class))
