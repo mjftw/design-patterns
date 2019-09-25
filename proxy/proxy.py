@@ -48,7 +48,7 @@ class ProxyClient:
     #
     # proxying (special cases)
     #
-    def __getattr__(self, *args, **kwargs):
+    def __getattribute__(self, *args, **kwargs):
         proxy_call = object.__getattribute__(self, 'proxy_call')
         return proxy_call('__getattr__', *args, **kwargs)
 
