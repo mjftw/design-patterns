@@ -1,4 +1,7 @@
-from animal_factory import AnimalFactory
+'''Example of the Factory design pattern'''
+
+from .animal_factory import AnimalFactory
+
 
 def main():
     factory = AnimalFactory()

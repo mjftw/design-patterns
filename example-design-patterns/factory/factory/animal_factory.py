@@ -1,10 +1,12 @@
-from animal import Dog, Cat
+from .ifactory import IFactory
+from .animals import Dog, Cat, IAnimal
 
-class AnimalFactory:
-    def get(self, type):
-        if type == 'dog':
+
+class AnimalFactory(IFactory):
+    def get(self, name: str) -> IAnimal:
+        if name == 'dog':
             return Dog()
-        elif type == 'cat':
+        elif name == 'cat':
             return Cat()
         else:
-            raise AttributeError(f'Invalid species: {type}')
+            raise AttributeError(f'Invalid species: {name}')
