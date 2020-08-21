@@ -1,7 +1,7 @@
 import inspect
 import pickle
 
-from transport import Transport, TransportError
+from .transport import Transport, TransportError
 
 
 class ProxyError(Exception):
@@ -14,6 +14,7 @@ class ProxyClient:
         Any calls made to the ProxyClient are serialised using
         pickle and then handed to a Transport class and sent
         to the ProxyService. '''
+
     def __init__(self, target_class, transport):
         assert isinstance(transport, Transport)
         object.__setattr__(self, '_transport', transport)
@@ -22,7 +23,8 @@ class ProxyClient:
         try:
             real_target_class = proxy_call('__getattribute__', '__class__')
         except ProxyError as e:
-            raise ProxyError(f'{str(e)}. Targeted class not in scope; different class to expected: {target_class}')
+            raise ProxyError(
+                f'{str(e)}. Targeted class not in scope; different class to expected: {target_class}')
         if target_class != real_target_class:
             raise ProxyError('Targeted class is actually {} not {} as expected'.format(
                 real_target_class, target_class))
@@ -96,6 +98,7 @@ class ProxyService:
         the real object that the ProxyClient is spoofing.
         The response is then passed back to the ProxyClient via
         the Transport and handed back to the calling object'''
+
     def __init__(self, service, transport):
         assert isinstance(transport, Transport)
         self.service = service

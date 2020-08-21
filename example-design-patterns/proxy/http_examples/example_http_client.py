@@ -1,9 +1,10 @@
-from proxy import ProxyClient
-from transport import HttpTransport
+from ..proxy import ProxyClient
+from ..transport import HttpTransport
 
 
 class Foo:
     ''' Example class to spoof '''
+
     def __init__(self):
         self.attr1 = 1
         self.attr2 = 2
@@ -31,7 +32,3 @@ def main():
         attr = foo_proxy.not_an_attr
     except Exception as e:
         print(f'Caught exception: {type(e)}: {str(e)}')
-
-
-if __name__ == '__main__':
-    main()

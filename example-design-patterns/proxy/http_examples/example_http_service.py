@@ -1,9 +1,10 @@
-from proxy import ProxyService
-from transport import HttpTransport
+from ..proxy import ProxyService
+from ..transport import HttpTransport
 
 
 class Foo:
     ''' Example class to spoof '''
+
     def __init__(self):
         self.attr1 = 1
         self.attr2 = 2
@@ -19,7 +20,3 @@ def main():
     proxy = ProxyService(foo, transport)
 
     proxy.run()
-
-
-if __name__ == '__main__':
-    main()
