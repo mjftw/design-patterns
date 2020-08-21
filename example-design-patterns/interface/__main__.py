@@ -1,4 +1,6 @@
-from interface import Duck, Dog
+'''Example usage of Interface design pattern'''
+
+from .interface import Duck, Dog
 
 
 def main():
