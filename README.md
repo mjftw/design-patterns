@@ -12,8 +12,9 @@ Currently implemented:
 - Command
 - Decorator
 - Factory
+- Abstract Factory
 - Iterator
-- Proxy
+- Remote Proxy
 
 ## Running the examples
 
