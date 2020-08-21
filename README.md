@@ -15,6 +15,8 @@ Currently implemented:
 - Abstract Factory
 - Iterator
 - Remote Proxy
+- Singleton
+- Observer
 
 ## Running the examples
 
