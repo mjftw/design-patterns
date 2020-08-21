@@ -1,21 +1,24 @@
+import abc
+
+
 class InvalidCommandError(Exception):
     pass
 
 
-# Command interface
-class Command:
+class ICommand(metaclass=abc.ABCMeta):
+    @abc.abstractmethod
     def execute(self, *args):
-        raise NotImplementedError
+        pass
 
 
-class MacroCommand(Command):
+class MacroCommand(ICommand):
     def __init__(self, *commands):
-        assert all(isinstance(cmd, Command) for cmd in commands)
+        assert all(isinstance(cmd, ICommand) for cmd in commands)
 
-        self.commmands = commands
+        self.commands = commands
 
     def execute(self, *args):
-        for cmd in self.commmands:
+        for cmd in self.commands:
             cmd.execute()
 
 
@@ -23,13 +26,13 @@ class Invoker:
     def __init__(self):
         self.commands = {}
 
-    def set_command(self, name, command):
-        if not isinstance(command, Command):
-            raise AttributeError('command must be a Command class')
+    def set_command(self, name: str, command: ICommand):
+        if not isinstance(command, ICommand):
+            raise AttributeError('command must be a ICommand class')
 
         self.commands[name] = command
 
-    def run_command(self, name, *args):
+    def run_command(self, name: str, *args):
         if name not in self.commands:
             raise InvalidCommandError(f'{name}: command not found')
 

@@ -1,10 +1,10 @@
 
-from command import Command, MacroCommand
-from cli import CLI
+from .command import ICommand, MacroCommand
+from .cli import CLI
 
 
-# Concerete Class implimenting Command interface
-class LogCommand(Command):
+# Concerete Class implimenting ICommand interface
+class LogCommand(ICommand):
     def __init__(self, reciever):
         self.reciever = reciever
 
@@ -21,8 +21,8 @@ class Logger:
         print(self.message)
 
 
-# Concerete Class implimenting Command interface
-class AddCommand(Command):
+# Concerete Class implimenting ICommand interface
+class AddCommand(ICommand):
     def __init__(self, reciever):
         self.reciever = reciever
 
