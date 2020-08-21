@@ -1,3 +1,6 @@
+'''Trivially simple iterator example - python makes this very easy!'''
+
+
 def main():
     a = 'a'
     b = 'b'
