@@ -1,66 +1,56 @@
+import abc
+from abc import abstractmethod
 
-# Move interface
-class Move:
+
+class IMovable(metaclass=abc.ABCMeta):
+    '''Interface class indicating object can move'''
+
+    @abc.abstractmethod
     def move(self):
-        raise NotImplementedError
+        pass
 
 
-# Impliments Move interface
-class WalkMove(Move):
+class WalkMove(IMovable):
+    '''Fulfills IMovable contract'''
+
     def move(self):
         print("Walk")
 
 
-# Impliments Move interface
-class FlyMove(Move):
+class FlyMove(IMovable):
+    '''Fulfills IMovable contract'''
+
     def move(self):
         print("Flap Flap")
 
 
-# Sound interface
-class Sound:
+class ISoundable(metaclass=abc.ABCMeta):
+    '''Interface indicating that object can make a sound'''
+    @abc.abstractmethod
     def make_sound(self):
-        raise NotImplementedError
+        pass
 
 
-# Impliments Sound interface
-class BarkSound(Sound):
-    def make_sound(self):
-        print("Bark!")
+class IAnimal(IMovable, ISoundable):
+    '''Animals can move and make a sound'''
+    pass
 
 
-# Impliments Sound interface
-class QuackSound(Sound):
-    def make_sound(self):
-        print("Quack!")
-
-
-# Base class has Move and Sound interfaces
-class Animal:
-    def __init__(self):
-        self.Move = Move()
-        self.Sound = Sound()
+class Dog(IAnimal):
+    '''Concrete Dog class'''
 
     def make_sound(self):
-        self.Sound.make_sound()
+        print('Bark!')
 
     def move(self):
-        self.Move.move()
+        print('Walk')
 
 
-# Extends Animal base class, defining correct Move and Bark interfaces
-class Dog(Animal):
-    def __init__(self):
-        Animal.__init__(self)
+class Duck(IAnimal):
+    '''Concrete Duck class'''
 
-        self.Move = WalkMove()
-        self.Sound = BarkSound()
+    def make_sound(self):
+        print('Quack!')
 
-
-# Extends Animal base class, defining correct Move and Bark interfaces
-class Duck(Animal):
-    def __init__(self):
-        Animal.__init__(self)
-
-        self.Move = FlyMove()
-        self.Sound = QuackSound()
+    def move(self):
+        print('Waddle!')

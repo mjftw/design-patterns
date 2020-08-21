@@ -1,4 +1,3 @@
-
 from interface import Duck, Dog
 
 
