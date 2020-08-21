@@ -1,2 +1,3 @@
 pytest
 aiohttp[speedups]
+opencv-python

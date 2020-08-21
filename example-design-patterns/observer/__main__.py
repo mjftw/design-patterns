@@ -1,4 +1,4 @@
-from draw import Image, Colour, Rectangle, Circle, Line
+from .draw import Image, Colour, Rectangle, Circle, Line
 
 
 def main():
