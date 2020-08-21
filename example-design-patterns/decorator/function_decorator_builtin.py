@@ -1,3 +1,5 @@
+'''Example showing usage of Pythons built-in decorator syntax'''
+
 from functools import wraps
 
 
@@ -22,6 +24,7 @@ def foo(a, b, c):
 
 def main():
     foo(1, 2, 3)
+
 
 if __name__ == '__main__':
     main()

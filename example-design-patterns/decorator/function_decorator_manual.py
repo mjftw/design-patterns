@@ -1,3 +1,6 @@
+'''Example showing a manual implementation of a decorator'''
+
+
 def log(msg):
     print(msg)
 
@@ -14,7 +17,10 @@ def logged_function(func):
 
 def foo(a, b, c):
     print('Hello World')
+
+
 foo = logged_function(foo)
+
 
 def main():
     foo(1, 2, 3)

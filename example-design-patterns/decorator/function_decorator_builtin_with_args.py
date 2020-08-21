@@ -1,3 +1,5 @@
+'''Example of a decorator with args. Function returns a decorator'''
+
 from functools import wraps
 
 
