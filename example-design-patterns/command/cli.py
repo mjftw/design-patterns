@@ -1,11 +1,6 @@
-import sys
 
-from .command import ICommand, Invoker, InvalidCommandError
-
-
-class ExitCommand(ICommand):
-    def execute(self):
-        sys.exit(0)
+from .command import Invoker, InvalidCommandError
+from .commands import ExitCommand
 
 
 class CLI(Invoker):

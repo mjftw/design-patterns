@@ -1,41 +1,7 @@
 
-from .command import ICommand, MacroCommand
+from .command import MacroCommand
+from .commands import AddCommand, Adder, LogCommand, Logger
 from .cli import CLI
-
-
-# Concerete Class implimenting ICommand interface
-class LogCommand(ICommand):
-    def __init__(self, reciever):
-        self.reciever = reciever
-
-    def execute(self):
-        self.reciever.log()
-
-
-# Reciever
-class Logger:
-    def __init__(self, message):
-        self.message = message
-
-    def log(self):
-        print(self.message)
-
-
-# Concerete Class implimenting ICommand interface
-class AddCommand(ICommand):
-    def __init__(self, reciever):
-        self.reciever = reciever
-
-    def execute(self, *args):
-        answer = self.reciever.add(*args)
-
-        print(f'{" + ".join(args)} = {answer}')
-
-
-# Reciever
-class Adder:
-    def add(self, *args):
-        return sum(int(x) for x in args)
 
 
 def main():
