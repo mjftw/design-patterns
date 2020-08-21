@@ -15,6 +15,22 @@ Currently implemented:
 - Iterator
 - Proxy
 
+## Running the examples
+
+Example scripts exist for some of the patterns which show it working in an unrealistic
+real world example.
+
+To run the examples for each of the patterns do:
+
+```shell
+python3 -m example-design-patterns.<name_of_pattern>
+```
+
+```shell
+# E.g. run the interface example
+python3 -m example-design-patterns.interface
+```
+
 ## Running the tests
 
 It is recommended that you first install the package requirements into a
