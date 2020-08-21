@@ -1,4 +1,6 @@
-from singleton import Singleton
+'''Example usage of Singleton design pattern'''
+
+from .singleton import Singleton
 
 
 class MyClass(Singleton):
