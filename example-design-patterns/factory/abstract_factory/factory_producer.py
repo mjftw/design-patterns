@@ -1,10 +1,9 @@
-from abstract_factory import AbstractFactory
-from instrument_factory import InstrumentFactory
-from animal_factory import AnimalFactory
+from .factories import AnimalFactory, InstrumentFactory
+from .factory import IAbstractFactory, IFactory
 
 
-class FactoryProducer:
-    def get_factory(self, type):
+class FactoryProducer(IAbstractFactory):
+    def get(self, type: str) -> IFactory:
         if type == 'instrument':
             return InstrumentFactory()
         elif type == 'animal':

@@ -1,15 +1,11 @@
-from sound_maker import ISoundMaker
-
-class IInstrument(ISoundMaker):
-    pass
+from .sound_maker import ISoundMaker
 
 
-class Guitar(IInstrument):
+class Guitar(ISoundMaker):
     def make_sound(self):
         print('Guitar: twang!')
 
 
-class Drum(IInstrument):
+class Drum(ISoundMaker):
     def make_sound(self):
         print('Drum: bang!')
-

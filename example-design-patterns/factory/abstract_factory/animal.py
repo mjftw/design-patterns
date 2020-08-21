@@ -1,16 +1,11 @@
-from sound_maker import ISoundMaker
+from .sound_maker import ISoundMaker
 
 
-class IAnimal(ISoundMaker):
-    def make_sound(self):
-        raise NotImplementedError
-
-
-class Dog(IAnimal):
+class Dog(ISoundMaker):
     def make_sound(self):
         print('Dog: Bark!')
 
 
-class Cat(IAnimal):
+class Cat(ISoundMaker):
     def make_sound(self):
         print('Cat: Meow!')

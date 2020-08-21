@@ -1,3 +1,7 @@
-class ISoundMaker:
+import abc
+
+
+class ISoundMaker(metaclass=abc.ABCMeta):
+    @abc.abstractmethod
     def make_sound(self):
-        raise NotImplementedError
+        pass
